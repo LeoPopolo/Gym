@@ -1,0 +1,4 @@
+
+CREATE DATABASE Gym;
+
+CREATE SCHEMA authentication;
