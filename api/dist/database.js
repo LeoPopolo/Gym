@@ -3,12 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const promise_mysql_1 = __importDefault(require("promise-mysql"));
+const pg_1 = require("pg");
 const key_1 = __importDefault(require("./key"));
-const pool = promise_mysql_1.default.createPool(key_1.default.database);
-pool.getConnection().then(connection => {
-    pool.releaseConnection(connection);
-    console.log("DB connected");
+const pool = new pg_1.Client(key_1.default.database);
+pool.connect()
+    .then(() => {
+    console.log("database connected");
+})
+    .catch(err => {
+    console.log(err);
 });
 exports.default = pool;
 //# sourceMappingURL=database.js.map

@@ -2,11 +2,11 @@ import bcrypt from 'bcryptjs';
 
 export class User {
     id: number;
-    username: string;
-    password: string;
+    dni: number;
+    name: string;
+    surname: string;
     email: string;
-    phone_number: string;
-    address: string;
+    password: string;
 
     constructor() { }
 

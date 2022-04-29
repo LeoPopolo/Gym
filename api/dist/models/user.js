@@ -19,7 +19,14 @@ class User {
     encryptPassword(password) {
         return __awaiter(this, void 0, void 0, function* () {
             const salt = yield bcryptjs_1.default.genSalt(10);
-            return bcryptjs_1.default.hash(password, salt);
+            let response = null;
+            yield bcryptjs_1.default.hash(password, salt)
+                .then(resp => {
+                response = resp;
+            });
+            if (response) {
+                return response;
+            }
         });
     }
     validatePassword(password) {
