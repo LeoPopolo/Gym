@@ -17,18 +17,14 @@ export async function signup(req: Request, res: Response) {
     user.name = req.body.name;
     user.surname = req.body.surname;
     user.email = req.body.email;
-    user.password = req.body.password
+    user.password = tmp_pass
 
     console.log(user);
 
-    await conn.query(`SELECT authentication.user(${user.dni},'${user.name}','${user.surname}','${user.email}','${user.password}')`)
-    .catch(err => {
-        console.log(err);
-        return res.status(400).send(err);
-    })
+    await conn.query(`SELECT authentication.user('${user.dni}','${user.name}','${user.surname}','${user.email}','${user.password}')`)
     .then(resp => {
         
-        console.log(resp.rows)
+        console.log(resp as any)
 
         if ((resp as any).rows) {
             // generating token
@@ -41,6 +37,9 @@ export async function signup(req: Request, res: Response) {
                 token: token
             });
         }
+    }).catch(err => {
+        console.log(err);
+        return res.status(400).send(err);
     });
 };
 

@@ -18,6 +18,8 @@ const database_1 = __importDefault(require("../database"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+
+
 function signup(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = new user_1.User();
@@ -29,15 +31,11 @@ function signup(req, res) {
         user.name = req.body.name;
         user.surname = req.body.surname;
         user.email = req.body.email;
-        user.password = req.body.password;
+        user.password = tmp_pass;
         console.log(user);
-        yield database_1.default.query(`SELECT authentication.user(${user.dni},'${user.name}','${user.surname}','${user.email}','${user.password}')`)
-            .catch(err => {
-            console.log(err);
-            return res.status(400).send(err);
-        })
+        yield database_1.default.query(`SELECT authentication.user('${user.dni}','${user.name}','${user.surname}','${user.email}','${user.password}')`)
             .then(resp => {
-            console.log(resp.rows);
+            console.log(resp);
             if (resp.rows) {
                 // generating token
                 const token = jsonwebtoken_1.default.sign({
@@ -48,6 +46,9 @@ function signup(req, res) {
                     token: token
                 });
             }
+        }).catch(err => {
+            console.log(err);
+            return res.status(400).send(err);
         });
     });
 }

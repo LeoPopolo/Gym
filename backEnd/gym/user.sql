@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION authentication.user (
     IN p_dni                      bigint,
     IN p_name                     text,
     IN p_surname                  text,
-    IN email                      text,
+    IN p_email                    text,
     IN p_password                 text
 ) RETURNS authentication.user AS $$
 DECLARE
@@ -30,14 +30,13 @@ BEGIN
     v_user_id := nextval('authentication.user_id');
 
     INSERT INTO authentication.user(user_id, dni, name, surname, email, password)
-        VALUES(v_user_id, p_dni, p_name, p_surname, email, p_password)
+        VALUES(v_user_id, p_dni, p_name, p_surname, p_email, p_password)
     RETURNING * INTO v_user;
 
     RETURN v_user;
 END;
 $$ LANGUAGE plpgsql VOLATILE
 SET search_path FROM CURRENT;
-
 
 
 CREATE OR REPLACE FUNCTION authentication.user_destroy (
@@ -148,8 +147,9 @@ BEGIN
         RAISE EXCEPTION 'authentication.user_set_dni ERROR: dni allready exists';
     END IF;
 
-	v_user := p_user;
-	v_user.dni := p_dni;
+	UPDATE authentication.user u
+		SET dni = p_dni
+	WHERE u = p_user RETURNING * INTO v_user;
 
 	RETURN v_user;
 END;
@@ -174,8 +174,11 @@ DECLARE
 	v_user                       authentication.user;
 
 BEGIN
-	v_user := p_user;
-	v_user.name := p_name;
+
+	UPDATE authentication.user u
+		SET name = p_name
+	WHERE u = p_user RETURNING * INTO v_user;
+
 
 	RETURN v_user;
 END;
@@ -228,10 +231,6 @@ DECLARE
 	v_user                        authentication.user;
 
 BEGIN
-	IF authentication.user_exists(p_email)
-	THEN
-		RAISE EXCEPTION 'authentication.user_set_email ERROR: dni allready exists';
-	END IF;
 
 	UPDATE authentication.user u
 		SET email = p_email
@@ -251,10 +250,6 @@ DECLARE
 	v_user                        authentication.user;
 
 BEGIN
-	IF NOT authentication.user_exists(p_user)
-	THEN
-		RAISE EXCEPTION 'authentication.user_set_password ERROR: user does not exists';
-	END IF;
 
 	UPDATE authentication.user u
 		SET password = p_password
@@ -265,3 +260,30 @@ END;
 $$ LANGUAGE plpgsql VOLATILE STRICT
 SET search_path FROM CURRENT;
 
+
+CREATE OR REPLACE FUNCTION authentication.user_get_role (
+  	IN p_user                     authentication.user
+) RETURNS bigint AS
+$$
+  	SELECT role(p_user);
+$$ LANGUAGE sql STABLE STRICT
+SET search_path FROM CURRENT;
+
+
+CREATE OR REPLACE FUNCTION authentication.user_set_role (
+	IN p_user                    authentication.user,
+	IN p_role                    authentication.user_role
+) RETURNS authentication.user AS $$
+DECLARE
+	v_user                       authentication.user;
+
+BEGIN
+
+	UPDATE authentication.user u
+		SET role = p_role
+	WHERE u = p_user RETURNING * INTO v_user;
+
+	RETURN v_user;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT
+SET search_path FROM CURRENT;
