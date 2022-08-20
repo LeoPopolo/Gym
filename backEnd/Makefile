@@ -11,12 +11,14 @@ compile: modules gym.sql
 
 modules:
 	# last_modules
+	make -C gym
 	make -C webapi
 
 gym.sql:
 	touch gym.sql
 	cat setup.ddl >> gym.sql
 	# last_all
+	cat gym/gym.sql >> gym.sql
 	cat webapi/webapi.sql >> gym.sql
 	
 deploy: gym.sql
@@ -41,4 +43,3 @@ sampleData:
 
 postconf:
 	$(PSQL) <  postconf.sql
-	$(PSQL) <  postconf.gym.sql
