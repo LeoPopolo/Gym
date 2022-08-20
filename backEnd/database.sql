@@ -1,6 +1,0 @@
-
-CREATE DATABASE Gym;
-
-CREATE SCHEMA authentication;
-
-CREATE SCHEMA webapi;

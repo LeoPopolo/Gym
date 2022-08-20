@@ -263,7 +263,7 @@ SET search_path FROM CURRENT;
 
 CREATE OR REPLACE FUNCTION authentication.user_get_role (
   	IN p_user                     authentication.user
-) RETURNS bigint AS
+) RETURNS authentication.user_role AS
 $$
   	SELECT role(p_user);
 $$ LANGUAGE sql STABLE STRICT
