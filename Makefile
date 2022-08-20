@@ -1,6 +1,6 @@
 .PHONY: backEnd common clean populate add_migration upgrade api
 
-all: backEnd europa api
+all: backEnd gym api
 
 backEnd: common
 	make -C backEnd
@@ -16,3 +16,4 @@ api:
 
 clean:
 	make -C backEnd clean
+	$(RM) -r api/node_modules

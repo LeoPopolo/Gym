@@ -29,6 +29,7 @@ clean:
 	# last_clean
 	if [ -d "backbone" ]; then make -C backbone clean; fi
 	make -C webapi clean
+	make -C gym clean
 	$(RM) gym.sql
 
 drop:
