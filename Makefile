@@ -7,6 +7,8 @@ backEnd: common
 
 runBackEnd: common
 	make -C backEnd run
+	make -C backEnd populate
+	make -C backEnd clean
 
 populate: 
 	make -C backEnd populate
