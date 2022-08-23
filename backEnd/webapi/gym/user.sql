@@ -61,3 +61,26 @@ END;
 $$ LANGUAGE plpgsql VOLATILE STRICT
 SET search_path FROM CURRENT
 SECURITY DEFINER;
+
+
+CREATE OR REPLACE FUNCTION webapi.authentication_user_login (
+	IN p_email                    text
+) RETURNS jsonb AS $$
+DECLARE
+	v_user                        authentication.user;
+    v_result                      jsonb;
+
+BEGIN
+
+	v_user  := authentication.user_identify_by_email(p_email);
+
+    v_result := jsonb_build_object (
+		'password', authentication.user_get_password(v_user),
+		'id', authentication.user_get_id(v_user)
+	);
+
+    RETURN v_result;
+END;
+$$ LANGUAGE plpgsql VOLATILE STRICT
+SET search_path FROM CURRENT
+SECURITY DEFINER;

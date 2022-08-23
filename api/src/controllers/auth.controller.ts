@@ -43,52 +43,41 @@ export async function signup(req: Request, res: Response) {
     });
 };
 
-// export async function signin(req: Request, res: Response) {
-//     let user = new User();
+export async function signin(req: Request, res: Response) {
+    const user = new User();
 
-//     await conn.query('SELECT * FROM users WHERE username = ?', [req.body.username])
-//     .catch(err => {
-//         return res.status(400).send(err);
-//     })
-//     .then(async resp => {
+    await conn.query(`SELECT webapi.authentication_user_login('${req.body.email}')`)
+    .then(async resp => {
+        
+        if ((resp as any).rows) {            
 
-//         if((resp as any).rows.length === 0 || (resp as any).rows === null || (resp as any).rows === undefined) {
-//             return res.status(400).json({
-//                 error: 'username or password incorrect'
-//             });
-//         } else {
-//             user.id = (resp as any).rows[0].id;
-//             user.password = (resp as any).rows[0].password;
-//             user.username = (resp as any).rows[0].username;
-//             user.email = (resp as any).rows[0].email;
-//             user.phone_number = (resp as any).rows[0].phone_number;
-//             user.address = (resp as any).rows[0].address;
+            user.password = (resp as any).rows[0].authentication_user_login.password;
+            user.id = (resp as any).rows[0].authentication_user_login.id;
+            
+            const correctPassword = await user.validatePassword(req.body.password);
     
-//             const correctPassword = await user.validatePassword(req.body.password);
+            if (!correctPassword) {
+                return res.status(400).json({
+                    error: 'invalid password'
+                });
+            }
+
+            const token = jwt.sign({
+                _id: (resp as any).rows[0].authentication_user_login.id
+            }, process.env.TOKEN_SECRET);
     
-//             if (!correctPassword) {
-//                 return res.status(400).json({
-//                     error: 'invalid password'
-//                 });
-//             }
-    
-//             const token = jwt.sign({
-//                 _id: user.id
-//             }, process.env.TOKEN_SECRET);
-    
-//             res.header('Authorization', token).json({
-//                 data: {
-//                     id: user.id,
-//                     username: user.username,
-//                     email: user.email,    
-//                     phone_number: user.phone_number,
-//                     address: user.address
-//                 }
-//             });
-    
-//         }
-//     })
-// }
+            res.header('Authorization', token).json({
+                data: {
+                    status :"ok",
+                    id : user.id
+                }
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+        return res.status(400).send(err);
+    });
+}
 
 // export async function profile(req: Request, res: Response) {
 

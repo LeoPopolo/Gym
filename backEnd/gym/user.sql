@@ -125,6 +125,15 @@ SECURITY DEFINER;
 --------------------------
 -- GETTERS & SETTERS
 --------------------------
+CREATE OR REPLACE FUNCTION authentication.user_get_id (
+  	IN p_user                     authentication.user
+) RETURNS bigint AS
+$$
+  	SELECT user_id(p_user);
+$$ LANGUAGE sql STABLE STRICT
+SET search_path FROM CURRENT;
+
+
 CREATE OR REPLACE FUNCTION authentication.user_get_dni (
   	IN p_user                     authentication.user
 ) RETURNS bigint AS
@@ -258,6 +267,15 @@ BEGIN
 	RETURN v_user;
 END;
 $$ LANGUAGE plpgsql VOLATILE STRICT
+SET search_path FROM CURRENT;
+
+
+CREATE OR REPLACE FUNCTION authentication.user_get_password (
+  	IN p_user                     authentication.user
+) RETURNS text AS
+$$
+  	SELECT password(p_user);
+$$ LANGUAGE sql STABLE STRICT
 SET search_path FROM CURRENT;
 
 

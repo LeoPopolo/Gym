@@ -4,7 +4,7 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 const auth_controller_1 = require("../controllers/auth.controller");
 router.post('/signup', auth_controller_1.signup);
-// router.post('/signin', signin);
+router.post('/signin', auth_controller_1.signin);
 // router.get('/profile', tokenValidation, profile);
 // router.get('/users', tokenValidation, users);
 exports.default = router;

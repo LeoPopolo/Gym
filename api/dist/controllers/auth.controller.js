@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup = void 0;
+exports.signin = exports.signup = void 0;
 const user_1 = require("../models/user");
 const database_1 = __importDefault(require("../database"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -52,45 +52,37 @@ function signup(req, res) {
 }
 exports.signup = signup;
 ;
-// export async function signin(req: Request, res: Response) {
-//     let user = new User();
-//     await conn.query('SELECT * FROM users WHERE username = ?', [req.body.username])
-//     .catch(err => {
-//         return res.status(400).send(err);
-//     })
-//     .then(async resp => {
-//         if((resp as any).rows.length === 0 || (resp as any).rows === null || (resp as any).rows === undefined) {
-//             return res.status(400).json({
-//                 error: 'username or password incorrect'
-//             });
-//         } else {
-//             user.id = (resp as any).rows[0].id;
-//             user.password = (resp as any).rows[0].password;
-//             user.username = (resp as any).rows[0].username;
-//             user.email = (resp as any).rows[0].email;
-//             user.phone_number = (resp as any).rows[0].phone_number;
-//             user.address = (resp as any).rows[0].address;
-//             const correctPassword = await user.validatePassword(req.body.password);
-//             if (!correctPassword) {
-//                 return res.status(400).json({
-//                     error: 'invalid password'
-//                 });
-//             }
-//             const token = jwt.sign({
-//                 _id: user.id
-//             }, process.env.TOKEN_SECRET);
-//             res.header('Authorization', token).json({
-//                 data: {
-//                     id: user.id,
-//                     username: user.username,
-//                     email: user.email,    
-//                     phone_number: user.phone_number,
-//                     address: user.address
-//                 }
-//             });
-//         }
-//     })
-// }
+function signin(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = new user_1.User();
+        yield database_1.default.query(`SELECT webapi.authentication_user_login('${req.body.email}')`)
+            .then((resp) => __awaiter(this, void 0, void 0, function* () {
+            if (resp.rows) {
+                user.password = resp.rows[0].authentication_user_login.password;
+                user.id = resp.rows[0].authentication_user_login.id;
+                const correctPassword = yield user.validatePassword(req.body.password);
+                if (!correctPassword) {
+                    return res.status(400).json({
+                        error: 'invalid password'
+                    });
+                }
+                const token = jsonwebtoken_1.default.sign({
+                    _id: resp.rows[0].authentication_user_login.id
+                }, process.env.TOKEN_SECRET);
+                res.header('Authorization', token).json({
+                    data: {
+                        status: "ok",
+                        id: user.id
+                    }
+                });
+            }
+        })).catch(err => {
+            console.log(err);
+            return res.status(400).send(err);
+        });
+    });
+}
+exports.signin = signin;
 // export async function profile(req: Request, res: Response) {
 //     let user = new User();
 //     await conn.query('SELECT * FROM users WHERE id = ?', [req.userId]) 
